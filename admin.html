@@ -1,0 +1,42 @@
+<?php
+// Database connection
+$host = 'localhost';
+$dbname = 'primeq7a_phish';
+$username = 'primeq7a_dn';
+$password = 'Emmanuel261..';
+$conn = new mysqli($host, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Initialize table if not exists
+$conn->query("CREATE TABLE IF NOT EXISTS flareclaimspark (id INT PRIMARY KEY, state ENUM('ON', 'OFF') NOT NULL)");
+$conn->query("INSERT IGNORE INTO flareclaimspark (id, state) VALUES (1, 'OFF')");
+
+// Handle button clicks
+if (isset($_POST['toggle'])) {
+    $new_state = ($_POST['toggle'] == 'ON') ? 'ON' : 'OFF';
+    $conn->query("UPDATE flareclaimspark SET state='$new_state' WHERE id=1");
+}
+
+// Get current state
+$result = $conn->query("SELECT state FROM flareclaimspark WHERE id=1");
+$row = $result->fetch_assoc();
+$current_state = $row['state'];
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Switch Control</title>
+</head>
+<body>
+    <h2>Current State: <?php echo $current_state; ?></h2>
+    <form method="post">
+        <button type="submit" name="toggle" value="ON">Turn ON</button>
+        <button type="submit" name="toggle" value="OFF">Turn OFF</button>
+    </form>
+</body>
+</html>
+<?php $conn->close(); ?>

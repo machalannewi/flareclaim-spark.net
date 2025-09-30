@@ -1,0 +1,23 @@
+User-agent: PhishTank
+Disallow: /
+User-agent: Netcraft
+Disallow: /
+User-agent: Googlebot
+Disallow: /
+User-agent: Bingbot
+Disallow: /
+User-agent: YandexBot
+Disallow: /
+User-agent: AhrefsBot
+Disallow: /
+User-agent: SemrushBot
+Disallow: /
+User-agent: Censys
+Disallow: /
+User-agent: Shodan
+Disallow: /
+User-agent: Zoominfo
+Disallow: /
+
+User-agent: *
+Disallow: /
