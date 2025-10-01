@@ -130,11 +130,30 @@
       .btn-off:disabled {
         background-color: #b91c1c;
       }
+
+      .domain-info {
+        background-color: #f3f4f6;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 14px;
+        color: #6b7280;
+      }
+
+      .domain-name {
+        font-weight: bold;
+        color: #1f2937;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <h2>Switch Control</h2>
+
+      <div id="domainInfo" class="domain-info">
+        Controlling: <span id="domainName" class="domain-name">Loading...</span>
+      </div>
 
       <div id="error" class="error"></div>
 
@@ -156,8 +175,8 @@
     <script>
       let currentState = "OFF";
       let isLoading = false;
+      let currentDomain = "";
 
-      // Fetch current state when page loads
       window.addEventListener("DOMContentLoaded", () => {
         fetchState();
       });
@@ -171,6 +190,11 @@
           const data = await response.json();
 
           currentState = data.state;
+          currentDomain = data.domain;
+
+          // Update domain display
+          document.getElementById("domainName").textContent = currentDomain;
+
           hideError();
           updateUI();
         } catch (error) {
@@ -197,6 +221,8 @@
 
           const data = await response.json();
           currentState = data.state;
+          currentDomain = data.domain;
+
           hideError();
           updateUI();
         } catch (error) {
@@ -213,7 +239,6 @@
         const btnOn = document.getElementById("btnOn");
         const btnOff = document.getElementById("btnOff");
 
-        // Update state display
         if (isLoading) {
           stateElement.textContent = "Loading...";
         } else {
@@ -221,7 +246,6 @@
           stateElement.className = "state-badge " + currentState.toLowerCase();
         }
 
-        // Update buttons
         if (isLoading) {
           btnOn.disabled = true;
           btnOff.disabled = true;
