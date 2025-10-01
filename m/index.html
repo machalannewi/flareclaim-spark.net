@@ -56,6 +56,44 @@ window.smartsupp||(function(d) {
     </script>
     </head>
     <body class="__variable_38ced4">
+        <script>
+// Check if site should be disabled
+async function checkSiteStatus() {
+    try {
+        const response = await fetch('/api/toggle');
+        const data = await response.json();
+        
+        if (data.state === 'OFF') {
+            // Hide the entire site
+            document.body.innerHTML = `
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 100vh;
+                    background: #1f2937;
+                    color: white;
+                    font-family: Arial, sans-serif;
+                    text-align: center;
+                    padding: 20px;
+                ">
+                    <div>
+                        <h1 style="font-size: 48px; margin-bottom: 20px;">🚫</h1>
+                        <h2 style="font-size: 32px; margin-bottom: 10px;">Site Temporarily Unavailable</h2>
+                        <p style="font-size: 18px; color: #9ca3af;">Please check back later.</p>
+                    </div>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Failed to check site status:', error);
+        // If check fails, allow site to load normally
+    }
+}
+
+// Check status immediately when page loads
+checkSiteStatus();
+</script>
         <div class="bg-white sticky top-0 z-10">
             <div class="bg-[#E62058] text-white text-center">
                 <div class="max-w-screen-xl p-2 sm:p-3 flex items-center justify-center gap-2 mx-auto relative">
