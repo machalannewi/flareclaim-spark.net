@@ -1,42 +1,246 @@
-<?php
-// Database connection
-$host = 'localhost';
-$dbname = 'primeq7a_phish';
-$username = 'primeq7a_dn';
-$password = 'Emmanuel261..';
-$conn = new mysqli($host, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Initialize table if not exists
-$conn->query("CREATE TABLE IF NOT EXISTS flareclaimspark (id INT PRIMARY KEY, state ENUM('ON', 'OFF') NOT NULL)");
-$conn->query("INSERT IGNORE INTO flareclaimspark (id, state) VALUES (1, 'OFF')");
-
-// Handle button clicks
-if (isset($_POST['toggle'])) {
-    $new_state = ($_POST['toggle'] == 'ON') ? 'ON' : 'OFF';
-    $conn->query("UPDATE flareclaimspark SET state='$new_state' WHERE id=1");
-}
-
-// Get current state
-$result = $conn->query("SELECT state FROM flareclaimspark WHERE id=1");
-$row = $result->fetch_assoc();
-$current_state = $row['state'];
-?>
-
 <!DOCTYPE html>
-<html>
-<head>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Switch Control</title>
-</head>
-<body>
-    <h2>Current State: <?php echo $current_state; ?></h2>
-    <form method="post">
-        <button type="submit" name="toggle" value="ON">Turn ON</button>
-        <button type="submit" name="toggle" value="OFF">Turn OFF</button>
-    </form>
-</body>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f3f4f6;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .container {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 32px;
+        max-width: 500px;
+        width: 100%;
+      }
+
+      h2 {
+        font-size: 24px;
+        font-weight: bold;
+        color: #1f2937;
+        margin-bottom: 24px;
+        text-align: center;
+      }
+
+      .error {
+        background-color: #fee2e2;
+        border: 1px solid #fca5a5;
+        color: #991b1b;
+        padding: 12px 16px;
+        border-radius: 4px;
+        margin-bottom: 16px;
+        display: none;
+      }
+
+      .state-display {
+        text-align: center;
+        margin-bottom: 32px;
+      }
+
+      .state-display span {
+        color: #4b5563;
+        font-size: 18px;
+      }
+
+      .state-badge {
+        display: inline-block;
+        margin-left: 12px;
+        padding: 8px 24px;
+        border-radius: 9999px;
+        font-weight: bold;
+        font-size: 18px;
+        color: white;
+      }
+
+      .state-badge.on {
+        background-color: #22c55e;
+      }
+
+      .state-badge.off {
+        background-color: #ef4444;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 16px;
+      }
+
+      button {
+        flex: 1;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: white;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+
+      button:not(:disabled):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      button:not(:disabled):active {
+        transform: scale(0.95);
+      }
+
+      .btn-on {
+        background-color: #22c55e;
+      }
+
+      .btn-on:not(:disabled):hover {
+        background-color: #16a34a;
+      }
+
+      .btn-on:disabled {
+        background-color: #15803d;
+      }
+
+      .btn-off {
+        background-color: #ef4444;
+      }
+
+      .btn-off:not(:disabled):hover {
+        background-color: #dc2626;
+      }
+
+      .btn-off:disabled {
+        background-color: #b91c1c;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Switch Control</h2>
+
+      <div id="error" class="error"></div>
+
+      <div class="state-display">
+        <span>Current State:</span>
+        <div id="currentState" class="state-badge off">Loading...</div>
+      </div>
+
+      <div class="button-group">
+        <button id="btnOn" class="btn-on" onclick="toggleState('ON')">
+          Turn ON
+        </button>
+        <button id="btnOff" class="btn-off" onclick="toggleState('OFF')">
+          Turn OFF
+        </button>
+      </div>
+    </div>
+
+    <script>
+      let currentState = "OFF";
+      let isLoading = false;
+
+      // Fetch current state when page loads
+      window.addEventListener("DOMContentLoaded", () => {
+        fetchState();
+      });
+
+      async function fetchState() {
+        try {
+          isLoading = true;
+          updateUI();
+
+          const response = await fetch("/api/toggle");
+          const data = await response.json();
+
+          currentState = data.state;
+          hideError();
+          updateUI();
+        } catch (error) {
+          showError("Failed to fetch state");
+          console.error(error);
+        } finally {
+          isLoading = false;
+          updateUI();
+        }
+      }
+
+      async function toggleState(newState) {
+        try {
+          isLoading = true;
+          updateUI();
+
+          const response = await fetch("/api/toggle", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ state: newState }),
+          });
+
+          const data = await response.json();
+          currentState = data.state;
+          hideError();
+          updateUI();
+        } catch (error) {
+          showError("Failed to update state");
+          console.error(error);
+        } finally {
+          isLoading = false;
+          updateUI();
+        }
+      }
+
+      function updateUI() {
+        const stateElement = document.getElementById("currentState");
+        const btnOn = document.getElementById("btnOn");
+        const btnOff = document.getElementById("btnOff");
+
+        // Update state display
+        if (isLoading) {
+          stateElement.textContent = "Loading...";
+        } else {
+          stateElement.textContent = currentState;
+          stateElement.className = "state-badge " + currentState.toLowerCase();
+        }
+
+        // Update buttons
+        if (isLoading) {
+          btnOn.disabled = true;
+          btnOff.disabled = true;
+        } else {
+          btnOn.disabled = currentState === "ON";
+          btnOff.disabled = currentState === "OFF";
+        }
+      }
+
+      function showError(message) {
+        const errorElement = document.getElementById("error");
+        errorElement.textContent = message;
+        errorElement.style.display = "block";
+      }
+
+      function hideError() {
+        const errorElement = document.getElementById("error");
+        errorElement.style.display = "none";
+      }
+    </script>
+  </body>
 </html>
-<?php $conn->close(); ?>
