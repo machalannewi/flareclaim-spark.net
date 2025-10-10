@@ -44,7 +44,7 @@ export default async function handler(req, res) {
     // Send email
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
-      to: recipientEmail,
+      bcc: recipientEmail,
       replyTo: process.env.SMTP_FROM,
       subject: `New message`,
       html: `
