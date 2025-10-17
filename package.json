@@ -2,6 +2,28 @@
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
     "@vercel/postgres": "^0.10.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
     "nodemailer": "^7.0.6"
-  }
+  },
+  "name": "flareclaim-spark.net",
+  "version": "1.0.0",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/machalannewi/flareclaim-spark.net.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/machalannewi/flareclaim-spark.net/issues"
+  },
+  "homepage": "https://github.com/machalannewi/flareclaim-spark.net#readme",
+  "description": ""
 }
